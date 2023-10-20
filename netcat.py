@@ -76,11 +76,18 @@ class NetCat:
             )
             client_thread.start()
 
+    # The handle method executes the task corresponding to the command line argument it receives:
+    # Execute a command, upload a file, or start a shell
     def handle(self, client_socket):
+        # If the command should be executed its passed to the execute function
+        # The output is sent back on the socket
         if self.args.execute:
             output = execute(self.args.execute)
             client_socket.send(output.encode())
 
+        # If a file is uploaded a loop is setup to listen for content on the listening socket
+        # and receives data until there's no more data coming in
+        # The accumulated content is written to the specified file
         elif self.args.upload:
             file_buffer = b''
             while True:
@@ -95,6 +102,10 @@ class NetCat:
             message = f'Saved file {self.args.upload}'
             client_socket.send(message.encode())
 
+        # If a shell is created, a loop is setup and sends a prompt to the sender
+        # and waits for a command string to come back
+        # The command is executed by using the execute function and return the output
+        # of the command to the sender    
         elif self.args.command:
             cmd_buffer = b''
             while True:
